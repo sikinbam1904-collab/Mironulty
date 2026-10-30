@@ -1212,8 +1212,8 @@
                 <button onclick="switchAdminTab('items')" id="tabBtnItems" class="flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg bg-[#FFF5FB] text-[#D870B8] whitespace-nowrap">บัญชี/Contact</button>
                 <button onclick="switchAdminTab('media')" id="tabBtnMedia" class="flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg bg-[#FFF5FB] text-[#D870B8] whitespace-nowrap">จัดการภาพ</button>
                 <button onclick="switchAdminTab('shopCategories')" id="tabBtnShopCategories" class="flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg bg-[#FFF5FB] text-[#D870B8] whitespace-nowrap">หมวดหมู่สินค้า</button>
-                <button onclick="switchAdminTab('appearance')" id="tabBtnAppearance" class="flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg bg-[#FFF5FB] text-[#D870B8] whitespace-nowrap">สี/ข้อความเช็คคิว</button>
-                <button onclick="switchAdminTab('highlights')" id="tabBtnHighlights" class="flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg bg-[#FFF5FB] text-[#D870B8] whitespace-nowrap">ไฮไลท์รีวิว</button>
+                <button onclick="switchAdminTab('appearance')" id="tabBtnAppearance" class="flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg bg-[#FFF5FB] text-[#D870B8] whitespace-nowrap">ธีม/ข้อความเช็คคิว</button>
+                <button onclick="switchAdminTab('highlights')" id="tabBtnHighlights" class="flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg bg-[#FFF5FB] text-[#D870B8] whitespace-nowrap">ระบบรีวิว</button>
                 <button onclick="switchAdminTab('orders')" id="tabBtnOrders" class="flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg bg-[#FFF5FB] text-[#D870B8] whitespace-nowrap">ออร์เดอร์ <span id="adminOrderBadge"></span></button>
                 <button onclick="switchAdminTab('customize')" id="tabBtnCustomize" class="flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg bg-[#FFF5FB] text-[#D870B8] whitespace-nowrap">ปรับระบบเว็บ</button>
                 <button onclick="switchAdminTab('sounds')" id="tabBtnSounds" class="flex-1 py-1.5 px-2 text-[10px] font-bold rounded-lg bg-[#FFF5FB] text-[#D870B8] whitespace-nowrap">เสียงปุ่ม</button>
@@ -4193,13 +4193,13 @@
             `;
 
             const reviewCategories=Array.isArray(siteConfig.reviewCategories)?siteConfig.reviewCategories:[];
-            const categoryButtons=[{id:'all',name:'ทั้งหมด'},...reviewCategories];
+            const categoryButtons=[{id:'all',name:'All'},...reviewCategories];
             let filterBtns = `
                 <div class="flex gap-2 overflow-x-auto pb-2 mb-2" aria-label="กรองตามหมวดหมู่รีวิว">
                     ${categoryButtons.map(item=>`<button type="button" onclick="filterReviewByCategory('${escapeHtml(item.id)}')" class="review-category-filter-btn ${String(item.id)===reviewCategoryFilter?'active':''}">${escapeHtml(item.name)}</button>`).join('')}
                 </div>
                 <div class="flex gap-1 overflow-x-auto pb-2 mb-2" aria-label="กรองตามคะแนนดาว">
-                    <button type="button" onclick="filterReviewByStar(0)" class="review-star-filter-btn ${reviewStarFilter === 0 ? 'active' : ''}">ทั้งหมด</button>
+                    <button type="button" onclick="filterReviewByStar(0)" class="review-star-filter-btn ${reviewStarFilter === 0 ? 'active' : ''}">All</button>
                     <button type="button" onclick="filterReviewByStar(5)" class="review-star-filter-btn ${reviewStarFilter === 5 ? 'active' : ''}">5 ⭐</button>
                     <button type="button" onclick="filterReviewByStar(4)" class="review-star-filter-btn ${reviewStarFilter === 4 ? 'active' : ''}">4 ⭐</button>
                     <button type="button" onclick="filterReviewByStar(3)" class="review-star-filter-btn ${reviewStarFilter === 3 ? 'active' : ''}">3 ⭐</button>
