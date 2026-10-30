@@ -6700,6 +6700,94 @@ document.addEventListener('keydown',function(event){if(event.key==='Escape')clos
         }
     </style>
 
+
+<style id="completeDynamicThemeFramesAndControls">
+/* กรอบรูปและปุ่มลบ/ปิดทุกจุดใช้สีจากชุดธีมที่เลือกในหน้าแอดมิน */
+.section-image,
+.media-admin-photo img,
+.highlight-preview img,
+.product-photo-viewer,
+.product-photo-viewer-stage,
+.contact-profile-photo,
+.review-highlight-ring img {
+    border-color: var(--theme-border) !important;
+}
+
+.review-highlight-ring {
+    background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary)) !important;
+}
+.review-highlight-ring img {
+    background: var(--theme-surface) !important;
+}
+
+.media-admin-photo button,
+.highlight-preview button,
+#highlightEditorModal button[aria-label="ปิด"],
+#highlightViewerModal button[aria-label="ปิดไฮไลท์"],
+#editReviewModal .flex > button,
+#productPhotoViewerModal .product-photo-viewer-controls button[aria-label="ปิดภาพสินค้า"] {
+    background: var(--theme-primary) !important;
+    color: var(--theme-on-primary) !important;
+    border: 1px solid var(--theme-primary) !important;
+    box-shadow: 0 2px 8px rgba(var(--theme-shadow-primary-rgb), .24) !important;
+}
+
+.media-admin-photo button:hover,
+.highlight-preview button:hover,
+#highlightEditorModal button[aria-label="ปิด"]:hover,
+#highlightViewerModal button[aria-label="ปิดไฮไลท์"]:hover,
+#editReviewModal .flex > button:hover,
+#productPhotoViewerModal .product-photo-viewer-controls button[aria-label="ปิดภาพสินค้า"]:hover {
+    filter: brightness(.94);
+}
+
+.product-photo-viewer {
+    background: var(--theme-surface) !important;
+    color: var(--theme-text) !important;
+    border: 1px solid var(--theme-border) !important;
+}
+.product-photo-viewer-stage {
+    background: var(--theme-soft) !important;
+}
+.product-photo-viewer-controls {
+    background: var(--theme-surface) !important;
+    color: var(--theme-text) !important;
+    border-color: var(--theme-border) !important;
+}
+.product-photo-viewer-controls button,
+#highlightViewerModal .highlight-viewer > div button {
+    color: var(--theme-primary-ink) !important;
+}
+#productPhotoViewerModal .product-photo-viewer-controls button[aria-label="ปิดภาพสินค้า"] {
+    color: var(--theme-on-primary) !important;
+}
+
+/* ปุ่มกากบาท/ปิดที่อยู่ในหน้าต่างป๊อปอัปและส่วนจัดการรูป */
+.modal-content button[aria-label*="ปิด"],
+.modal-content button[title*="ปิด"],
+.modal-content button[aria-label*="ลบ"],
+.modal-content button[title*="ลบ"] {
+    border-color: var(--theme-border) !important;
+}
+
+/* กรอบรูปปกและกรอบภาพในส่วนรีวิว */
+#coverWidget,
+.horizontal-cover-widget,
+.review-card img,
+.review-highlight-ring,
+.section-image {
+    border-color: var(--theme-border) !important;
+}
+
+/* ปรับสีเส้นขอบของปุ่มและช่องกรอกที่ยังมีสีเริ่มต้นหลงเหลือ */
+button,
+input,
+textarea,
+select {
+    accent-color: var(--theme-primary);
+}
+</style>
+
 </body>
 </html>
 
