@@ -1375,6 +1375,18 @@
                 <div class="theme-color-row"><label class="admin-label">5. สีข้อความ<input id="theme-text-text" class="admin-input" maxlength="7" oninput="syncThemeColor('text','text')"></label><input id="theme-text-picker" type="color" aria-label="เลือกสีข้อความ" oninput="syncThemeColor('text','picker')"></div>
                 <div class="theme-color-row"><label class="admin-label">6. สีกรอบ<input id="theme-border-text" class="admin-input" maxlength="7" oninput="syncThemeColor('border','text')"></label><input id="theme-border-picker" type="color" aria-label="เลือกสีกรอบ" oninput="syncThemeColor('border','picker')"></div>
                 <div class="theme-color-row"><label class="admin-label">7. พื้นอ่อนในกล่อง<input id="theme-soft-text" class="admin-input" maxlength="7" oninput="syncThemeColor('soft','text')"></label><input id="theme-soft-picker" type="color" aria-label="เลือกสีพื้นอ่อน" oninput="syncThemeColor('soft','picker')"></div>
+
+                <div class="admin-section-title mt-5"><i class="fas fa-bolt"></i> Neon Orbit Frame — เส้นนีออนวิ่งวนรอบขอบ iPhone</div>
+                <div class="rounded-2xl border p-3 space-y-3" style="border-color:var(--theme-border);background:var(--theme-surface)">
+                    <label class="flex items-center justify-between gap-3 text-xs font-bold" style="color:var(--theme-text)">
+                        <span>เปิดใช้งานเส้นนีออนวิ่งวน</span>
+                        <input id="deviceFrameEnabled" type="checkbox" class="w-5 h-5" onchange="previewDeviceFrameEffect()">
+                    </label>
+                    <div class="theme-color-row"><label class="admin-label">สีเส้นนีออน<input id="deviceFrameColorPrimaryText" class="admin-input" maxlength="7" oninput="syncDeviceFrameColor('colorPrimary','text')"></label><input id="deviceFrameColorPrimary" type="color" aria-label="สีเส้นนีออน" oninput="syncDeviceFrameColor('colorPrimary','picker')"></div>
+                    <div class="theme-color-row"><label class="admin-label">สีแสงวิ่ง<input id="deviceFrameColorSecondaryText" class="admin-input" maxlength="7" oninput="syncDeviceFrameColor('colorSecondary','text')"></label><input id="deviceFrameColorSecondary" type="color" aria-label="สีแสงวิ่ง" oninput="syncDeviceFrameColor('colorSecondary','picker')"></div>
+                    <div class="theme-color-row"><label class="admin-label">สีแสงฟุ้ง Glow<input id="deviceFrameColorGlowText" class="admin-input" maxlength="7" oninput="syncDeviceFrameColor('colorGlow','text')"></label><input id="deviceFrameColorGlow" type="color" aria-label="สีแสงฟุ้ง Glow" oninput="syncDeviceFrameColor('colorGlow','picker')"></div>
+                    <p class="text-[10px]" style="color:var(--theme-muted)">ใช้เอฟเฟกต์เส้นนีออนแบบเดียวตามภาพตัวอย่าง แสงจะวิ่งวนรอบกรอบต่อเนื่อง สามารถเลือกสีทั้ง 3 ส่วนได้เองค่ะ</p>
+                </div>
                 <button onclick="saveAppearanceSettings()" class="w-full bg-[#D870B8] text-white font-bold py-2.5 rounded-xl shadow-sm text-xs mt-3"><i class="fas fa-save mr-1"></i> บันทึกข้อมูล</button>
 
                 <div class="admin-section-title mt-5"><i class="fas fa-layer-group"></i> แม่แบบเว็บไซต์ที่บันทึกไว้ (สูงสุด 4 แบบ)</div>
@@ -1891,6 +1903,16 @@
             },
             themeEnabled: true,
             themePaletteVersion: 2,
+            deviceFrameEffect: {
+                enabled: false,
+                style: 'energy',
+                palette: 'cyberblue',
+                colorPrimary: '#66E8FF',
+                colorSecondary: '#FFFFFF',
+                colorGlow: '#168BFF',
+                speed: 8,
+                intensity: 70
+            },
             paymentBannerImg: '',
             promptPayNumber: '',
             promptPayName: '',
@@ -3278,11 +3300,120 @@
             setAttr('twitterImage', 'content', image);
         }
 
+
+        function normalizedDeviceFrameEffect(raw) {
+            const base = defaultConfig.deviceFrameEffect;
+            const value = {...base, ...(raw || {})};
+            ['colorPrimary','colorSecondary','colorGlow'].forEach(key => {
+                if (!validThemeHex(value[key])) value[key] = base[key];
+                else value[key] = value[key].toUpperCase();
+            });
+            // Keep one fixed Neon Orbit animation; legacy effect types are intentionally ignored.
+            value.enabled = value.enabled === true;
+            value.style = 'orbit';
+            value.speed = 8;
+            value.intensity = 70;
+            value.palette = 'custom';
+            return value;
+        }
+        function applyDeviceFrameEffect(raw) {
+            const config = normalizedDeviceFrameEffect(raw);
+            const device = document.querySelector('.device-container');
+            if (!device) return;
+            let layer = device.querySelector('.device-frame-energy');
+            if (!layer) {
+                layer = document.createElement('div');
+                layer.className = 'device-frame-energy';
+                layer.setAttribute('aria-hidden','true');
+                layer.innerHTML = `<svg class="device-energy-svg" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="deviceEnergyGradient" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stop-color="var(--frame-primary)"/>
+                            <stop offset="50%" stop-color="var(--frame-secondary)"/>
+                            <stop offset="100%" stop-color="var(--frame-primary)"/>
+                        </linearGradient>
+                        <filter id="deviceEnergyGlow" x="-100%" y="-100%" width="300%" height="300%">
+                            <feGaussianBlur stdDeviation="2.8" result="soft"/>
+                            <feGaussianBlur stdDeviation="6.5" result="wide"/>
+                            <feMerge><feMergeNode in="wide"/><feMergeNode in="soft"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                        <filter id="deviceEnergyHotGlow" x="-120%" y="-120%" width="340%" height="340%">
+                            <feGaussianBlur stdDeviation="3.5" result="soft"/>
+                            <feMerge><feMergeNode in="soft"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
+                    <rect class="device-energy-outline" fill="none" stroke="url(#deviceEnergyGradient)" stroke-width="1.8"/>
+                    <rect class="device-energy-halo" fill="none" stroke="var(--frame-glow)" stroke-width="5.5" filter="url(#deviceEnergyGlow)"/>
+                    <rect class="device-energy-runner device-energy-runner-color" fill="none" stroke="var(--frame-primary)" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="145 855" pathLength="1000" filter="url(#deviceEnergyGlow)"/>
+                    <rect class="device-energy-runner" fill="none" stroke="var(--frame-secondary)" stroke-width="2.2" stroke-linecap="round" stroke-dasharray="145 855" pathLength="1000" filter="url(#deviceEnergyHotGlow)"/>
+                </svg>`;
+                device.appendChild(layer);
+                const fitEnergyPath = () => {
+                    const box = device.getBoundingClientRect();
+                    const w = Math.max(1, box.width), h = Math.max(1, box.height);
+                    const svg = layer.querySelector('svg');
+                    if (!svg) return;
+                    svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
+                    const inset = 3.5, radius = Math.min(34, Math.min(w, h) * .12);
+                    svg.querySelectorAll('rect').forEach(rect => {
+                        rect.setAttribute('x', inset); rect.setAttribute('y', inset);
+                        rect.setAttribute('width', Math.max(1, w - inset * 2));
+                        rect.setAttribute('height', Math.max(1, h - inset * 2));
+                        rect.setAttribute('rx', radius); rect.setAttribute('ry', radius);
+                    });
+                };
+                fitEnergyPath();
+                if (window.ResizeObserver) { layer._energyResizeObserver = new ResizeObserver(fitEnergyPath); layer._energyResizeObserver.observe(device); }
+                else window.addEventListener('resize', fitEnergyPath, { passive: true });
+            }
+            layer.dataset.style = 'orbit';
+            layer.style.setProperty('--frame-primary', config.colorPrimary);
+            layer.style.setProperty('--frame-secondary', config.colorSecondary);
+            layer.style.setProperty('--frame-glow', config.colorGlow);
+            layer.style.setProperty('--frame-speed', '8s');
+            layer.style.setProperty('--frame-opacity', '0.7');
+            layer.classList.toggle('is-active', config.enabled);
+            device.classList.toggle('device-frame-energy-active', config.enabled);
+            device.style.setProperty('--device-frame-primary', config.colorPrimary);
+            device.style.setProperty('--device-frame-secondary', config.colorSecondary);
+            device.style.setProperty('--device-frame-glow', config.colorGlow);
+            device.dataset.frameEffectStyle = 'orbit';
+        }
+        function readDeviceFrameEffectFromAdmin() {
+            const value = { enabled: !!document.getElementById('deviceFrameEnabled')?.checked };
+            ['colorPrimary','colorSecondary','colorGlow'].forEach(key => {
+                value[key] = document.getElementById('deviceFrame' + key.charAt(0).toUpperCase() + key.slice(1))?.value || defaultConfig.deviceFrameEffect[key];
+            });
+            return normalizedDeviceFrameEffect(value);
+        }
+        function previewDeviceFrameEffect() {
+            applyDeviceFrameEffect(readDeviceFrameEffectFromAdmin());
+        }
+        function syncDeviceFrameColor(key, source) {
+            const suffix = key.charAt(0).toUpperCase() + key.slice(1);
+            const text = document.getElementById('deviceFrame' + suffix + 'Text');
+            const picker = document.getElementById('deviceFrame' + suffix);
+            if (source === 'picker') text.value = picker.value.toUpperCase();
+            else if (validThemeHex(text.value.trim())) picker.value = text.value.trim();
+            if (validThemeHex(text.value.trim())) previewDeviceFrameEffect();
+        }
+        function loadDeviceFrameEffectToAdmin() {
+            const config = normalizedDeviceFrameEffect(siteConfig.deviceFrameEffect);
+            document.getElementById('deviceFrameEnabled').checked = config.enabled;
+            ['colorPrimary','colorSecondary','colorGlow'].forEach(key => {
+                const suffix = key.charAt(0).toUpperCase() + key.slice(1);
+                document.getElementById('deviceFrame' + suffix + 'Text').value = config[key];
+                document.getElementById('deviceFrame' + suffix).value = config[key];
+            });
+            previewDeviceFrameEffect();
+        }
+
         function applyConfigToUI() {
             applyReviewCategoryStyles();
             applyThemeColors(siteConfig.themeColors);
             applyThemeBackground(siteConfig.themeBackgroundImage || '');
             applyInnerThemeBackground(siteConfig.themeInnerBackgroundImage || '');
+            applyDeviceFrameEffect(siteConfig.deviceFrameEffect);
             document.getElementById('badgeText').textContent = siteConfig.badgeText;
             document.getElementById('shopTitleText').textContent = siteConfig.shopTitle;
             document.getElementById('shopDescText').textContent = siteConfig.shopDesc;
@@ -4437,6 +4568,7 @@
             document.getElementById('themeBackgroundUrl').value = siteConfig.themeBackgroundImage || '';
             document.getElementById('themeInnerBackgroundUrl').value = siteConfig.themeInnerBackgroundImage || '';
             const innerStatus=document.getElementById('themeInnerBackgroundStatus'); if(innerStatus)innerStatus.textContent=siteConfig.themeInnerBackgroundImage?'มีภาพพื้นหลังด้านในบันทึกไว้แล้วค่ะ':'เลือกภาพหรือ GIF จากตัวเครื่องได้ค่ะ ระบบจะอัปโหลดไป Cloudinary จากนั้นกดบันทึกข้อมูล';
+            loadDeviceFrameEffectToAdmin();
             renderDesignPresetStatus();
             if (siteConfig.themeBackgroundImage) previewThemeBackground(siteConfig.themeBackgroundImage);
             else {
@@ -4773,8 +4905,9 @@
                 showToast('กรุณากรอกข้อความ Please Read ให้ครบค่ะ', 'fa-exclamation-circle');
                 return;
             }
-            const previous = {themeColors: siteConfig.themeColors, themeEnabled: siteConfig.themeEnabled, themePaletteVersion: siteConfig.themePaletteVersion, themeBackgroundImage: siteConfig.themeBackgroundImage || '', themeInnerBackgroundImage: siteConfig.themeInnerBackgroundImage || '', pleaseReadTitle: siteConfig.pleaseReadTitle, pleaseReadText: siteConfig.pleaseReadText};
+            const previous = {themeColors: siteConfig.themeColors, themeEnabled: siteConfig.themeEnabled, themePaletteVersion: siteConfig.themePaletteVersion, themeBackgroundImage: siteConfig.themeBackgroundImage || '', themeInnerBackgroundImage: siteConfig.themeInnerBackgroundImage || '', deviceFrameEffect: siteConfig.deviceFrameEffect, pleaseReadTitle: siteConfig.pleaseReadTitle, pleaseReadText: siteConfig.pleaseReadText};
             siteConfig.themeColors = colors;
+            siteConfig.deviceFrameEffect = readDeviceFrameEffectFromAdmin();
             siteConfig.themeBackgroundImage = document.getElementById('themeBackgroundUrl').value.trim();
             siteConfig.themeInnerBackgroundImage = document.getElementById('themeInnerBackgroundUrl').value.trim();
             siteConfig.themeEnabled = true;
@@ -4785,14 +4918,16 @@
             if (saved) {
                 applyThemeBackground(siteConfig.themeBackgroundImage);
                 applyInnerThemeBackground(siteConfig.themeInnerBackgroundImage);
+                applyDeviceFrameEffect(siteConfig.deviceFrameEffect);
                 if (document.getElementById('queueListContainer')) renderQueueList();
-                showToast('บันทึก Please Read สีเว็บ และภาพพื้นหลังแล้วค่ะ ✨', 'fa-check-circle');
+                showToast('บันทึกสีเว็บ ภาพพื้นหลัง และเอฟเฟกต์ขอบหน้าจอแล้วค่ะ ✨', 'fa-check-circle');
                 closeAdminPanelModal();
             } else {
                 Object.assign(siteConfig, previous);
                 applyThemeColors(siteConfig.themeColors);
                 applyThemeBackground(siteConfig.themeBackgroundImage);
                 applyInnerThemeBackground(siteConfig.themeInnerBackgroundImage);
+                applyDeviceFrameEffect(siteConfig.deviceFrameEffect);
             }
         }
 
@@ -6786,6 +6921,44 @@ textarea,
 select {
     accent-color: var(--theme-primary);
 }
+</style>
+
+
+<style id="deviceFrameEnergyStyles">
+    .device-frame-energy {
+        position:absolute; inset:0; z-index:120; pointer-events:none;
+        border-radius:inherit; overflow:visible; opacity:0; transition:opacity .3s ease;
+        --frame-primary:#66E8FF; --frame-secondary:#FFFFFF; --frame-glow:#168BFF;
+        --frame-speed:5s; --frame-opacity:.85;
+    }
+    .device-frame-energy.is-active { opacity:var(--frame-opacity); }
+    .device-energy-svg { display:block; width:100%; height:100%; overflow:visible; }
+    .device-energy-outline { opacity:.92; }
+    .device-energy-halo { opacity:.42; }
+    .device-energy-runner {
+        animation:deviceEnergyOrbit var(--frame-speed) linear infinite;
+        stroke-dasharray:145 855;
+    }
+    .device-energy-runner-color {
+        opacity:.78;
+        stroke-width:5.5;
+        animation-duration:var(--frame-speed);
+        animation-delay:-.12s;
+    }
+    @keyframes deviceEnergyOrbit {
+        from { stroke-dashoffset:0; }
+        to { stroke-dashoffset:-1000; }
+    }
+    .device-container.device-frame-energy-active {
+        border-color:transparent !important;
+        background:var(--theme-surface) !important;
+        box-shadow:0 0 8px var(--device-frame-glow),0 0 18px color-mix(in srgb,var(--device-frame-primary) 55%,transparent) !important;
+    }
+    .device-frame-energy { display:block !important; }
+    @media (min-width:768px) { .device-container.device-frame-energy-active { border-width:8px !important; } }
+    @media (prefers-reduced-motion:reduce) {
+        .device-energy-runner { animation:none !important; stroke-dashoffset:0; }
+    }
 </style>
 
 </body>
